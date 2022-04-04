@@ -1,6 +1,6 @@
 {
 	"name": "@outloud/puppeteer-utils",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A puppeteer wrapper.",
 	"main": "build/index.js",
 	"files": [
@@ -75,7 +75,7 @@
 		"url": "https://github.com/madebyoutloud/puppeteer-utils/issues"
 	},
 	"homepage": "https://github.com/madebyoutloud/puppeteer-utils#readme",
-  "publishConfig": {
-    "access": "public"
-  }
+	"publishConfig": {
+		"access": "public"
+	}
 }
