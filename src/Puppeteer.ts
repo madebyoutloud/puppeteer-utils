@@ -38,27 +38,44 @@ export default class Puppeteer {
       this.closeBrowserTimeout = undefined
     }
 
+    if (this.browser) {
+      return this.browser
+    }
+
     if (this.browserPromise) {
       return await this.browserPromise
     }
 
+    let promise: Promise<puppeteer.Browser>
+
     if (this.isConnect) {
-      this.browserPromise = puppeteer.connect({
+      promise = puppeteer.connect({
         browserWSEndpoint: this.config.browserEndpoint,
       })
     } else {
-      this.browserPromise = puppeteer.launch({
+      promise = puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
         timeout: this.config.timeout,
       })
     }
 
-    this.browserPromise
+    this.browserPromise = promise
       .then((browser) => {
         this.browser = browser
+        this.browserPromise = undefined
+
+        this.browser.on('disconnected', () => {
+          this.closeBrowser()
+        })
+
+        return browser
       })
-      .catch(() => {})
+      .catch((err) => {
+        this.browserPromise = undefined
+
+        throw err
+      })
 
     return await this.browserPromise
   }
@@ -76,7 +93,13 @@ export default class Puppeteer {
   }
 
   private async closeBrowser() {
-    const browser = this.browserPromise ? await this.browserPromise : this.browser
+    if (this.browserPromise) {
+      try {
+        await this.browserPromise
+      } catch (err) {}
+    }
+
+    const browser = this.browser
 
     if (!browser) {
       return
@@ -100,7 +123,7 @@ export default class Puppeteer {
 
     try {
       browser = await this.requestBrowser()
-      page = await browser!.newPage()
+      page = await browser.newPage()
 
       result = await callback(page)
     } catch (err) {
