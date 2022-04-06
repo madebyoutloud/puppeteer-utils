@@ -54,9 +54,11 @@ export default class Puppeteer {
       })
     }
 
-    this.browserPromise.then((browser) => {
-      this.browser = browser
-    })
+    this.browserPromise
+      .then((browser) => {
+        this.browser = browser
+      })
+      .catch(() => {})
 
     return await this.browserPromise
   }
@@ -93,31 +95,30 @@ export default class Puppeteer {
   public async requestPage<T>(callback: (page: puppeteer.Page) => T): Promise<T> {
     let browser: puppeteer.Browser | undefined
     let page: puppeteer.Page | undefined
+    let error: Error | undefined
+    let result: T | undefined
 
     try {
       browser = await this.requestBrowser()
       page = await browser!.newPage()
 
-      const result = await callback(page)
-
-      page &&
-        page.close().catch((_err) => {
-          // ignore
-        })
-
-      this.releaseBrowser()
-
-      return result
+      result = await callback(page)
     } catch (err) {
-      page &&
-        page.close().catch((_err) => {
-          // ignore
-        })
-
-      browser && this.releaseBrowser()
-
-      throw err
+      error = err.error ?? err
     }
+
+    page &&
+      page.close().catch((_err) => {
+        // ignore
+      })
+
+    this.releaseBrowser()
+
+    if (error) {
+      throw error
+    }
+
+    return result!
   }
 
   public async destroy() {
