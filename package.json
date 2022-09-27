@@ -61,7 +61,7 @@
 		"anyBranch": false
 	},
 	"peerDependencies": {
-		"puppeteer": "^13"
+		"puppeteer": "^18"
 	},
 	"directories": {
 		"doc": "docs",
