@@ -1,6 +1,6 @@
 {
 	"name": "@outloud/puppeteer-utils",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "A puppeteer wrapper.",
 	"main": "build/index.js",
 	"files": [
