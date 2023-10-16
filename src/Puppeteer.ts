@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer'
+import { Browser, Page, connect, launch } from 'puppeteer'
 
 export type PuppeteerConfig = {
   browserEndpoint?: string
@@ -11,8 +11,8 @@ export type PuppeteerOptions = Partial<PuppeteerConfig>
 export default class Puppeteer {
   private config: PuppeteerConfig
 
-  private browserPromise?: Promise<puppeteer.Browser>
-  private browser?: puppeteer.Browser
+  private browserPromise?: Promise<Browser>
+  private browser?: Browser
   private closeBrowserTimeout?: ReturnType<typeof setTimeout>
   private requests: number = 0
 
@@ -46,14 +46,14 @@ export default class Puppeteer {
       return await this.browserPromise
     }
 
-    let promise: Promise<puppeteer.Browser>
+    let promise: Promise<Browser>
 
     if (this.isConnect) {
-      promise = puppeteer.connect({
+      promise = connect({
         browserWSEndpoint: this.config.browserEndpoint,
       })
     } else {
-      promise = puppeteer.launch({
+      promise = launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
         timeout: this.config.timeout,
@@ -115,9 +115,9 @@ export default class Puppeteer {
   }
 
   // TODO: add queue handling, so you can not handle more than x requests at a time
-  public async requestPage<T>(callback: (page: puppeteer.Page) => T): Promise<T> {
-    let browser: puppeteer.Browser | undefined
-    let page: puppeteer.Page | undefined
+  public async requestPage<T>(callback: (page: Page) => T): Promise<T> {
+    let browser: Browser | undefined
+    let page: Page | undefined
     let error: Error | undefined
     let result: T | undefined
 
